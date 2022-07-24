@@ -4,10 +4,19 @@ from gpiozero import MCP3008, PWMLED, LED, Button
 from signal import pause
 import time
 
+#alarm v 2.0
 
 # Create width and height constants
-WINDOW_WIDTH = 1350
-WINDOW_HEIGHT = 650
+WINDOW_WIDTH = 1800
+WINDOW_HEIGHT = 900
+pot1 = MCP3008(0)
+pot2 = MCP3008(1)
+pot3 = MCP3008(2)
+pot4 = MCP3008(3)
+pot5 = MCP3008(4)
+pot6 = MCP3008(5)
+pot7 = MCP3008(6)
+pot8 = MCP3008(7)
 mbv = 12.1
 bbv = 12.1
 ost = 10
@@ -35,12 +44,11 @@ clock = pygame.time.Clock()
 
 game_running = True
 
-pot1 = MCP3008(0)
-pot2 = MCP3008(1)
 
-#mbv = pot1.value*20
 
-#r1=10k r2=2k2 gives 2.9v ouyput from 16v input
+
+
+#r1=10k r2=2k2 gives 2.9v output from 16v input
 
 # Game loop
 while game_running:
@@ -50,12 +58,22 @@ while game_running:
         if event.type == pygame.QUIT:
             game_running = False
 
+
+
+
+    # Fill the window with black / colours in r g b
     v1 = pot1.value*18.6
     v1a = ('{:.1f}'.format(v1))
     v2 = pot2.value*18.6
     v2a = ('{:.1f}'.format(v2))
-
-    # Fill the window with black / colours in r g b 
+    v3 = pot3.value*100
+    v3a = ('{:.0f}'.format(v3))
+    v4 = pot4.value*100
+    v4a = ('{:.0f}'.format(v4))
+    v5 = pot5.value*60-20
+    v5a = ('{:.1f}'.format(v5))
+    v6 = pot6.value*60-20
+    v6a = ('{:.1f}'.format(v6))
     game_window.fill((0, 0, 0))
     text0 = font1.render('Alarm system', True, (0, 200, 0)) 
     text1a = font1.render('Main battery voltage  ' + str(v1a) + ' V' , True, (0, 200, 0))
@@ -110,65 +128,67 @@ while game_running:
     text99 = font2.render('Alarm !!!', True, (200, 0, 0))
     
     # Draw text
-    game_window.blit(text0, (500, 0))
-    if v1 >= 12.0:
-        game_window.blit(text1a, (10, 50))
-    elif v1 > 11.5 and mbv < 11.9:
-        game_window.blit(text1b, (10, 50))
+    game_window.blit(text0, (780, 0))
+    if v1 >= 12.0 and v1 <14.99:
+        game_window.blit(text1a, (100, 50))
+        alarm = 0
+    elif v1 > 11.5 and v1 < 11.99:
+        game_window.blit(text1b, (100, 50))
         alarm = 1
     else:
-        game_window.blit(text1c, (10, 50))
+        game_window.blit(text1c, (100, 50))
         alarm = 2
-    if bbv >= 12.0:    
-        game_window.blit(text2a, (700, 50))
-    elif bbv > 11.5 and bbv < 11.9:
-        game_window.blit(text2b, (700, 50))
+    if v2 >= 12.0 and v2 <14.99:    
+        game_window.blit(text2a, (1120, 50))
+        alarm = 0
+    elif v2 > 11.5 and v2 < 11.9:
+        game_window.blit(text2b, (1120, 50))
         alarm = 1
     else:
-        game_window.blit(text2c, (700, 50))
+        game_window.blit(text2c, (1120, 50))
         alarm = 2
     if ost <= 5:    
-        game_window.blit(text3a, (10, 100))
+        game_window.blit(text3a, (100, 100))
         alarm = 1
     elif ost >5 and ost < 30:
-        game_window.blit(text3b, (10, 100))
+        game_window.blit(text3b, (100, 100))
     else:
-        game_window.blit(text3c, (10, 100))
+        game_window.blit(text3c, (100, 100))
         alarm = 1
     if ist <= 5:    
-        game_window.blit(text4a, (700, 100))
+        game_window.blit(text4a, (1120, 100))
         alarm = 2
     elif ist >5 and ist < 25:
-        game_window.blit(text4b, (700, 100))
+        game_window.blit(text4b, (1120, 100))
     else:
-        game_window.blit(text4c, (700, 100))
+        game_window.blit(text4c, (1120, 100))
         alarm = 2
-    game_window.blit(text5b, (10, 150))
-    game_window.blit(text6b, (700, 150))
-    game_window.blit(text7a, (10, 200))
-    game_window.blit(text8a, (700, 200))
-    game_window.blit(text9a, (10, 250))
-    game_window.blit(text10a, (700, 250))
-    game_window.blit(text11a, (10, 300))
-    game_window.blit(text12a, (700, 300))
-    game_window.blit(text13a, (10, 350))
-    game_window.blit(text14a, (700, 350))
-    game_window.blit(text15a, (10, 400))
-    game_window.blit(text16a, (700, 400))
+    game_window.blit(text5b, (100, 150))
+    game_window.blit(text6b, (1120, 150))
+    game_window.blit(text7a, (100, 200))
+    game_window.blit(text8a, (1120, 200))
+    game_window.blit(text9a, (100, 250))
+    game_window.blit(text10a, (1120, 250))
+    game_window.blit(text11a, (100, 300))
+    game_window.blit(text12a, (1120, 300))
+    game_window.blit(text13a, (100, 350))
+    game_window.blit(text14a, (1120, 350))
+    game_window.blit(text15a, (100, 400))
+    game_window.blit(text16a, (1120, 400))
     
-    game_window.blit(text96a, (400, 450))
+    game_window.blit(text96b, (700, 750))
     if alarm == 1:
-        game_window.blit(text98, (400, 520))
+        game_window.blit(text98, (780, 820))
         yellowled.on()
         redled.off()
         greenled.off()
     elif alarm == 2:
-        game_window.blit(text99, (400, 520))
+        game_window.blit(text99, (780, 820))
         redled.on()
         yellowled.off()
         greenled.off()
     else:
-        game_window.blit(text97, (475, 520))
+        game_window.blit(text97, (780, 820))
         greenled.on()
         redled.off()
         yellowled.off()

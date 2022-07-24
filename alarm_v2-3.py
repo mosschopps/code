@@ -1,13 +1,31 @@
+# import all the needed modules
 import pygame
 import sys
 from gpiozero import MCP3008, PWMLED, LED, Button
 from signal import pause
 import time
 
+#alarm v 2.3
 
 # Create width and height constants
-WINDOW_WIDTH = 1350
-WINDOW_HEIGHT = 650
+WINDOW_WIDTH = 1800
+WINDOW_HEIGHT = 900
+#setup other constants
+pot1 = MCP3008(0)
+pot2 = MCP3008(1)
+pot3 = MCP3008(2)
+pot4 = MCP3008(3)
+pot5 = MCP3008(4)
+pot6 = MCP3008(5)
+pot7 = MCP3008(6)
+pot8 = MCP3008(7)
+muted = Button(21)
+alarm = 0
+redled = LED(23)
+yellowled = LED(24)
+greenled = LED(25)
+mutedled = LED(27)
+# old testing constants
 mbv = 12.1
 bbv = 12.1
 ost = 10
@@ -16,10 +34,9 @@ mft = 98
 bft = 97
 cst = 0
 prt = 10
-alarm = 0
-redled = LED(23)
-yellowled = LED(24)
-greenled = LED(25)
+pot = 100
+oxt = 100
+
 # Initialise all the pygame modules
 pygame.init()
 
@@ -35,12 +52,6 @@ clock = pygame.time.Clock()
 
 game_running = True
 
-pot1 = MCP3008(0)
-pot2 = MCP3008(1)
-
-#mbv = pot1.value*20
-
-#r1=10k r2=2k2 gives 2.9v ouyput from 16v input
 
 # Game loop
 while game_running:
@@ -50,13 +61,26 @@ while game_running:
         if event.type == pygame.QUIT:
             game_running = False
 
+
+
+
+    #r1=10k r2=2k2 gives 2.9v output from 16v input
+    # 18.6 is value of multiplication needed to scale from 0 - 1 to 0 - 15
     v1 = pot1.value*18.6
     v1a = ('{:.1f}'.format(v1))
     v2 = pot2.value*18.6
     v2a = ('{:.1f}'.format(v2))
-
-    # Fill the window with black / colours in r g b 
+    v3 = pot3.value*100
+    v3a = ('{:.0f}'.format(v3))
+    v4 = pot4.value*100
+    v4a = ('{:.0f}'.format(v4))
+    v5 = pot5.value*60-20
+    v5a = ('{:.1f}'.format(v5))
+    v6 = pot6.value*60-20
+    v6a = ('{:.1f}'.format(v6))
+     # Fill the window with black / colours in r g b
     game_window.fill((0, 0, 0))
+    # define all messages, value, anti alised, colour
     text0 = font1.render('Alarm system', True, (0, 200, 0)) 
     text1a = font1.render('Main battery voltage  ' + str(v1a) + ' V' , True, (0, 200, 0))
     text1b = font1.render('Main battery voltage  ' + str(v1a) + ' V' , True, (200, 200, 0))
@@ -96,79 +120,120 @@ while game_running:
     text15b = font1.render('Downstairs panic buttons tripped', True, (200, 0, 0))
     text16a = font1.render('Upstairs panic buttons clear', True, (0, 200, 0))
     text16b = font1.render('Upstairs panic buttons tripped', True, (200, 0, 0))
-    text115 = font1.render('Main fuel oil tank ' + str(mft) + ' % full', True, (0, 200, 0))
-    text116 = font1.render('Backup fuel oil tank ' + str(bft) + ' % full', True, (0, 200, 0))
-    text117 = font1.render('Main diesel tank ' + str(bft) + ' % full', True, (0, 200, 0))
-    text118 = font1.render('Backup diesel tank ' + str(bft) + ' % full', True, (0, 200, 0))
-    text119 = font1.render('Main petrol tank ' + str(bft) + ' % full', True, (0, 200, 0))
-    text110 = font1.render('Backup petrol tank ' + str(bft) + ' % full', True, (0, 200, 0))
-    text111 = font1.render('Backup fuel tank ' + str(bft) + ' % full', True, (0, 200, 0))
+    text17a = font1.render('Main fuel oil tank ' + str(mft) + ' % full', True, (0, 200, 0))
+    text17b = font1.render('Main fuel oil tank ' + str(mft) + ' % full', True, (200, 200, 0))
+    text17c = font1.render('Main fuel oil tank ' + str(mft) + ' % full', True, (200, 0, 0))
+    text18a = font1.render('Backup fuel oil tank ' + str(bft) + ' % full', True, (0, 200, 0))
+    text18b = font1.render('Backup fuel oil tank ' + str(bft) + ' % full', True, (200, 200, 0))
+    text18c = font1.render('Backup fuel oil tank ' + str(bft) + ' % full', True, (200, 0, 0))
+    text19a = font1.render('Main diesel tank ' + str(bft) + ' % full', True, (0, 200, 0))
+    text20a = font1.render('Backup diesel tank ' + str(bft) + ' % full', True, (0, 200, 0))
+    text21a = font1.render('Main petrol tank ' + str(bft) + ' % full', True, (0, 200, 0))
+    text22a = font1.render('Backup petrol tank ' + str(bft) + ' % full', True, (0, 200, 0))
+    text23a = font1.render('Backup fuel tank ' + str(bft) + ' % full', True, (0, 200, 0))
+    text24a = font1.render('Lubricating oil tanks ' + str(pot) + ' % full', True, (0, 200, 0))
+    text25a = font1.render('Propane tanks ' + str(pot) + ' % full', True, (0, 200, 0))
+    text26a = font1.render('Oxygen tanks ' + str(oxt) + ' % full', True, (0, 200, 0))
+    # is alarm muted or active ?
     text96a = font2.render('Alarm active', True, (0, 200, 0))
     text96b = font2.render('Alarm muted', True, (200, 200, 0))
+    # the 3 alarm states
     text97 = font2.render('All clear', True, (0, 200, 0))
     text98 = font2.render('Caution !!!', True, (200, 200, 0))
     text99 = font2.render('Alarm !!!', True, (200, 0, 0))
     
     # Draw text
-    game_window.blit(text0, (500, 0))
-    if v1 >= 12.0:
-        game_window.blit(text1a, (10, 50))
-    elif v1 > 11.5 and mbv < 11.9:
-        game_window.blit(text1b, (10, 50))
+    # alarm = 0 = all clear
+    # alarm = 1 = caution state
+    # alarm = 2 = alarm state
+    # test battery voltages
+    game_window.blit(text0, (780, 0))
+    if v1 >= 12.0 and v1 <14.99:
+        game_window.blit(text1a, (100, 50))
+        alarm = 0
+    elif v1 > 11.5 and v1 < 11.99:
+        game_window.blit(text1b, (100, 50))
         alarm = 1
     else:
-        game_window.blit(text1c, (10, 50))
+        game_window.blit(text1c, (100, 50))
         alarm = 2
-    if bbv >= 12.0:    
-        game_window.blit(text2a, (700, 50))
-    elif bbv > 11.5 and bbv < 11.9:
-        game_window.blit(text2b, (700, 50))
+    if v2 >= 12.0 and v2 <14.99:    
+        game_window.blit(text2a, (1120, 50))
+        alarm = 0
+    elif v2 > 11.5 and v2 < 11.9:
+        game_window.blit(text2b, (1120, 50))
         alarm = 1
     else:
-        game_window.blit(text2c, (700, 50))
+        game_window.blit(text2c, (1120, 50))
         alarm = 2
+        # test tempratures
     if ost <= 5:    
-        game_window.blit(text3a, (10, 100))
+        game_window.blit(text3a, (100, 100))
         alarm = 1
     elif ost >5 and ost < 30:
-        game_window.blit(text3b, (10, 100))
+        game_window.blit(text3b, (100, 100))
     else:
-        game_window.blit(text3c, (10, 100))
+        game_window.blit(text3c, (100, 100))
         alarm = 1
     if ist <= 5:    
-        game_window.blit(text4a, (700, 100))
+        game_window.blit(text4a, (1120, 100))
         alarm = 2
     elif ist >5 and ist < 25:
-        game_window.blit(text4b, (700, 100))
+        game_window.blit(text4b, (1120, 100))
     else:
-        game_window.blit(text4c, (700, 100))
+        game_window.blit(text4c, (1120, 100))
         alarm = 2
-    game_window.blit(text5b, (10, 150))
-    game_window.blit(text6b, (700, 150))
-    game_window.blit(text7a, (10, 200))
-    game_window.blit(text8a, (700, 200))
-    game_window.blit(text9a, (10, 250))
-    game_window.blit(text10a, (700, 250))
-    game_window.blit(text11a, (10, 300))
-    game_window.blit(text12a, (700, 300))
-    game_window.blit(text13a, (10, 350))
-    game_window.blit(text14a, (700, 350))
-    game_window.blit(text15a, (10, 400))
-    game_window.blit(text16a, (700, 400))
+        
+    # test other inputs
+    # need to add logic for testing inputs
+        
+    game_window.blit(text5b, (100, 150))
+    game_window.blit(text6b, (1120, 150))
+    game_window.blit(text7a, (100, 200))
+    game_window.blit(text8a, (1120, 200))
+    game_window.blit(text9a, (100, 250))
+    game_window.blit(text10a, (1120, 250))
+    game_window.blit(text11a, (100, 300))
+    game_window.blit(text12a, (1120, 300))
+    game_window.blit(text13a, (100, 350))
+    game_window.blit(text14a, (1120, 350))
+    game_window.blit(text15a, (100, 400))
+    game_window.blit(text16a, (1120, 400))
+    game_window.blit(text17a, (100, 450))
+    game_window.blit(text18a, (1120, 450))
+    game_window.blit(text19a, (100, 500))
+    game_window.blit(text20a, (1120, 500))
+    game_window.blit(text21a, (100, 550))
+    game_window.blit(text22a, (1120, 550))
+    game_window.blit(text23a, (100, 600))
+    game_window.blit(text24a, (1120, 600))
+    game_window.blit(text25a, (100, 650))
+    game_window.blit(text26a, (1120, 650))
+    # test alarm states
+    # also light LEDs to show alarm muted/active and alarm state
+    # green all clear, yellow caution or red alarm
+    # need to add logic for mute state LED (done)
+    if muted.is_pressed:
+        game_window.blit(text96b, (700, 750))
+        mutedled.on()
+    else:
+        game_window.blit(text96a, (700, 750))
+        mutedled.off()
+        
+    # make caution and alarm LEDs blink
     
-    game_window.blit(text96a, (400, 450))
     if alarm == 1:
-        game_window.blit(text98, (400, 520))
-        yellowled.on()
+        game_window.blit(text98, (780, 820))
+        yellowled.blink()
         redled.off()
         greenled.off()
     elif alarm == 2:
-        game_window.blit(text99, (400, 520))
-        redled.on()
+        game_window.blit(text99, (780, 820))
+        redled.blink()
         yellowled.off()
         greenled.off()
     else:
-        game_window.blit(text97, (475, 520))
+        game_window.blit(text97, (780, 820))
         greenled.on()
         redled.off()
         yellowled.off()
