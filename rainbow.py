@@ -3,7 +3,7 @@ from time import sleep
 import random
 from machine import Pin
 from neopixel import NeoPixel
-delay = 0.005
+delay = 0.05
 pixel = 0
 #define colours
 red = (255, 0, 0)

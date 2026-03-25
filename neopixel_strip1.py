@@ -2,7 +2,7 @@ import machine
 import neopixel
 import time
 
-pin = machine.Pin(16)
+pin = machine.Pin(0)
 num_pixels = 15
 np = neopixel.NeoPixel(pin, num_pixels)
 
